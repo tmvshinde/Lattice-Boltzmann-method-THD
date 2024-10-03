@@ -83,7 +83,8 @@ def Time_stepping_1d(num_qubits_work, num_states, parameters, use_1D):
 
         subprocess.run(
             [
-                "/glob/development-tools/intel-quantum-sdk/intel-quantum-compiler",
+                # "/glob/development-tools/intel-quantum-sdk/intel-quantum-compiler",
+                "/opt/intel/quantum-sdk/latest/intel-quantum-compiler",
                 "-B",
                 "encoding_x02.qasm",
             ]
@@ -270,8 +271,7 @@ def main():
     setup_logging(logfile="report.log")
     logger = logging.getLogger(__name__)
 
-    use_1D = False
-
+    use_1D = True
     # when changing the lattice size, change the number of qubits work in cpp main()
     if use_1D == True:
         logger.info("Solving 1D problem")

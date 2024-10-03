@@ -10,6 +10,7 @@ from qiskit import QuantumCircuit, QuantumRegister, transpile
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
+import qiskit.qasm2
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def decomposing(amplitudes, iter, num_lattices):
 
     # qcm = qc.decompose(reps=2)
     qcm = transpile(circuits=qc, basis_gates=["cx", "ry"])
-    qcm.qasm(filename="encoding_x02.qasm")
+    qiskit.qasm2.dump(qcm, "encoding_x02.qasm")
     # qcm.draw('mpl', filename='encoding_x02.png')
 
 
