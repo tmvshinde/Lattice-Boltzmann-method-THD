@@ -190,12 +190,14 @@ std::vector<double> correct_angles(vector<double> angles){
     return new_list_angles;
 }
 
-vector<double> calculate_angles(vector<complex<double>> statevector, int max_num_qubits){
+std::tuple<vector<complex<double>>, vector<double>> 
+calculate_angles(vector<complex<double>> statevector, int max_num_qubits){
 
     vector<complex<double>> remain_state = statevector;
     vector<double> thetas_vec;
     vector<double> phis_vec;
     vector<double> corrected;
+    vector<complex<double>> new_remain_state;
     for (int i = 0; i < max_num_qubits-1; i++)
     {   std::cout << "--------------------------------------------------" << std::endl;
         cout << "Iteration number: " << i << endl;
@@ -223,11 +225,11 @@ vector<double> calculate_angles(vector<complex<double>> statevector, int max_num
         }
         std::cout << std::endl;
         remain_state = new_remain_state;
-        
+
         corrected = correct_angles(thetas_vec);
     }
 
-    return corrected;
+    return {remain_state, corrected};
 }
 
 
@@ -249,11 +251,13 @@ int main(){
 
     constexpr int N = 2;
     qbit listable(qmem, N);
+    qexpr::eval_hold(preparetozero(qmem));
 
     vector<complex<double>> arbitrary_state = {0, 0.408248, 0.816497, 0.408248};
 
-    vector<double> arbitrary_state_angles; 
-    arbitrary_state_angles = calculate_angles(arbitrary_state, N);
+    // vector<double> arbitrary_state_angles; 
+    // vector<complex<double>> remain_state;
+    auto [remain_state, arbitrary_state_angles] = calculate_angles(arbitrary_state, N);
     
     // vector<double> corrected;
     // corrected = correct_angles(arbitrary_state_angles);
@@ -262,8 +266,18 @@ int main(){
     }
     cout << endl;
 
-    qexpr::eval_hold(preparetozero(qmem));
+    for (const auto& state :remain_state) {
+        cout << state << " ";
+    }
+    cout << endl;
+    auto [new_remain_state, thetas_vec, phis_vec] = rotations(remain_state);
+    qexpr::eval_hold(qexpr::_RY(qmem[1], -thetas_vec[0]));
+
     qexpr::eval_hold(multiplex(qmem[0], qmem[1], arbitrary_state_angles));
+
+    
+
+    
 
     std::vector<std::reference_wrapper<qbit>> qids;
 	for (index_t qubit = 0; qubit < N; ++qubit)
