@@ -11,70 +11,132 @@
 #include <qexpr_utils.h>
 #include <bits/stdc++.h>
 
-
-
 typedef size_t index_t;
 using namespace std;
 #define _EPS 1.0e-10
 
+float norm(vector<complex<double>> mat)
+{
 
+    // To store the sum of squares of the
+    // elements of the given matrix
+    double norm = 0.0;
+    for (const auto &elem : mat)
+    {
+        norm += std::norm(elem); // std::norm returns the square of the magnitude
+    }
+    return std::sqrt(norm);
+}
 
+vector<complex<double>> normalize_statevector(vector<complex<double>> statevector)
+{
+    double vec_norm = norm(statevector);
+    // vector<complex<double>> normalized_vec(statevector.size());
+    if (vec_norm == 0)
+    {
+        throw runtime_error("Cannot normalize a zero vector");
+    }
+    for (size_t i = 0; i < statevector.size(); i++)
+    {
+        statevector[i] = statevector[i] / vec_norm;
+    }
+    return statevector;
+}
 
-std::vector<std::vector<double>> createIdentityMatrix(int size) {
+std::vector<std::vector<double>> createIdentityMatrix(int size)
+{
     std::vector<std::vector<double>> identityMatrix(size, std::vector<double>(size, 0.0));
-    
-    for (int i = 0; i < size; ++i) {
+
+    for (int i = 0; i < size; ++i)
+    {
         identityMatrix[i][i] = 1.0;
     }
-    
+
     return identityMatrix;
 }
 
-void printMatrix(const std::vector<std::vector<double>>& matrix) {
-    for (const auto& row : matrix) {
-        for (double val : row) {
+void printMatrix(const std::vector<std::vector<double>> &matrix)
+{
+    for (const auto &row : matrix)
+    {
+        for (double val : row)
+        {
             std::cout << val << " ";
         }
         std::cout << std::endl;
     }
 }
 
-std::vector<std::vector<double>> kroneckerProduct(const std::vector<std::vector<double>>& A, const std::vector<std::vector<double>>& B) {
+void print_statevector(vector<complex<double>> statevector)
+{
+    // cout << num_qubits << endl;
+    for (const auto &arbitrary : statevector)
+    {
+        cout << arbitrary << endl;
+    }
+}
+
+void print_angles_vec(vector<double> angles){
+    for (const auto &val : angles)
+        {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+}
+
+void print2DVector(vector<vector<double>>& vec) {
+    for (const auto& row : vec) {
+        for (const auto& elem : row) {
+            std::cout << elem << " ";
+        }
+        std::cout << std::endl; // Move to the next line after each row
+    }
+}
+
+std::vector<std::vector<double>> kroneckerProduct(const std::vector<std::vector<double>> &A, const std::vector<std::vector<double>> &B)
+{
     int aRows = A.size();
     int aCols = A[0].size();
     int bRows = B.size();
     int bCols = B[0].size();
-    
+
     int resultRows = aRows * bRows;
     int resultCols = aCols * bCols;
-    
+
     std::vector<std::vector<double>> result(resultRows, std::vector<double>(resultCols, 0.0));
-    
-    for (int i = 0; i < aRows; ++i) {
-        for (int j = 0; j < aCols; ++j) {
-            for (int k = 0; k < bRows; ++k) {
-                for (int l = 0; l < bCols; ++l) {
+
+    for (int i = 0; i < aRows; ++i)
+    {
+        for (int j = 0; j < aCols; ++j)
+        {
+            for (int k = 0; k < bRows; ++k)
+            {
+                for (int l = 0; l < bCols; ++l)
+                {
                     result[i * bRows + k][j * bCols + l] = A[i][j] * B[k][l];
                 }
             }
         }
     }
-    
+
     return result;
 }
 
-std::vector<double> matrixVectorMultiply(const std::vector<std::vector<double>>& matrix,
-                                      const std::vector<double>& vector) {
-    int m = matrix.size();      // Number of rows in matrix
-    int n = matrix[0].size();   // Number of columns in matrix
-    int vSize = vector.size();  // Size of the vector
+std::vector<double> matrixVectorMultiply(const std::vector<std::vector<double>> &matrix,
+                                         const std::vector<double> &vector)
+{
+    int m = matrix.size();     // Number of rows in matrix
+    int n = matrix[0].size();  // Number of columns in matrix
+    int vSize = vector.size(); // Size of the vector
 
     // Result vector will have size m (number of rows in matrix)
     std::vector<double> result(m, 0);
 
     // Perform matrix-vector multiplication
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (int i = 0; i < m; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
             result[i] += matrix[i][j] * vector[j];
         }
     }
@@ -144,10 +206,11 @@ std::tuple<vector<complex<double>>, vector<double>, vector<double>> rotations(co
         // phis[i] = -add_phi;
     }
 
-    return {remaining_vector, thetas, phis}; 
+    return {remaining_vector, thetas, phis};
 }
 
-std::vector<double> correct_angles(vector<double> angles){
+std::vector<double> correct_angles(vector<double> angles)
+{
 
     int angles_len = angles.size();
     cout << "the length of angles : " << angles_len << endl;
@@ -155,12 +218,10 @@ std::vector<double> correct_angles(vector<double> angles){
     cout << "The number of local qubits is : " << local_qubits << endl;
 
     std::vector<std::vector<double>> angle_weight = {
-            {0.5, 0.5},
-            {0.5, -0.5}
-    }; 
+        {0.5, 0.5},
+        {0.5, -0.5}};
 
-
-    auto idmat = createIdentityMatrix(pow(2,local_qubits - 2));
+    auto idmat = createIdentityMatrix(pow(2, local_qubits - 2));
 
     cout << "This is identity matrix" << endl;
     printMatrix(idmat);
@@ -172,7 +233,8 @@ std::vector<double> correct_angles(vector<double> angles){
     printMatrix(kronprod);
 
     std::cout << "The list of angles before dot applied is : ";
-    for (size_t i = 0; i < angles_len; ++i) {
+    for (size_t i = 0; i < angles_len; ++i)
+    {
         std::cout << angles[i] << " ";
     }
 
@@ -182,7 +244,8 @@ std::vector<double> correct_angles(vector<double> angles){
     auto new_list_angles = matrixVectorMultiply(kronprod, angles);
 
     cout << "The list of angles after dot applied is : ";
-    for (const auto& angle : new_list_angles) {
+    for (const auto &angle : new_list_angles)
+    {
         cout << angle << " ";
     }
     cout << endl;
@@ -190,106 +253,94 @@ std::vector<double> correct_angles(vector<double> angles){
     return new_list_angles;
 }
 
-std::tuple<vector<complex<double>>, vector<double>> 
-calculate_angles(vector<complex<double>> statevector, int max_num_qubits){
+std::tuple<vector<complex<double>>, vector<double>>
+calculate_angles(vector<complex<double>> statevector, int max_num_qubits)
+{
 
     vector<complex<double>> remain_state = statevector;
+    vector<vector<double>> thetas_vec_full;
     vector<double> thetas_vec;
     vector<double> phis_vec;
     vector<double> corrected;
     vector<complex<double>> new_remain_state;
-    for (int i = 0; i < max_num_qubits-1; i++)
-    {   std::cout << "--------------------------------------------------" << std::endl;
+    for (int i = 0; i < max_num_qubits - 1; i++)
+    {
+        std::cout << "--------------------------------------------------" << std::endl;
         cout << "Iteration number: " << i << endl;
         std::cout << "--------------------------------------------------" << std::endl;
         auto [new_remain_state, thetas_vec, phis_vec] = rotations(remain_state);
 
         std::cout << "Remaining vector: ";
-        for (const auto &val : new_remain_state)
-        {
-            std::cout << val << " ";
-        }
+        print_statevector(new_remain_state);
         std::cout << std::endl;
 
         std::cout << "Thetas: ";
-        for (const auto &val : thetas_vec)
-        {
-            std::cout << val << " ";
-        }
-        std::cout << std::endl;
+        print_angles_vec(thetas_vec);
 
         std::cout << "Phis: ";
-        for (const auto &val : phis_vec)
-        {
-            std::cout << val << " ";
-        }
-        std::cout << std::endl;
+        print_angles_vec(phis_vec);
+        thetas_vec_full.push_back(thetas_vec);
         remain_state = new_remain_state;
 
         corrected = correct_angles(thetas_vec);
     }
-
+    print2DVector(thetas_vec_full);
+    print_angles_vec(thetas_vec_full[1]);
     return {remain_state, corrected};
 }
 
+QExpr multiplex(qbit &q, qbit &qs, vector<double> angles)
+{
 
-
-QExpr multiplex(qbit &q, qbit &qs, vector<double> angles){
-    
     return qexpr::_RY(q, -angles[0]) + qexpr::_CNOT(qs, q) + qexpr::_RY(q, -angles[1]) + qexpr::_CNOT(qs, q);
 }
 
-QExpr preparetozero(qlist::QList q){
+QExpr preparetozero(qlist::QList q)
+{
     return qexpr::map(qexpr::_PrepZ, q);
 }
 
-int main(){
+int main()
+{
     iqsdk::IqsConfig iqs_config;
     iqsdk::FullStateSimulator iqs_device(iqs_config);
     iqsdk::QRT_ERROR_T status = iqs_device.ready();
     assert(status == iqsdk::QRT_ERROR_SUCCESS);
 
-    constexpr int N = 2;
+    constexpr int N = 4;
     qbit listable(qmem, N);
     qexpr::eval_hold(preparetozero(qmem));
 
-    vector<complex<double>> arbitrary_state = {0, 0.408248, 0.816497, 0.408248};
+    // vector<complex<double>> arbitrary_state = {0, 0.408248, 0.816497, 0.408248};
+    vector<complex<double>> arbitrary_state = {0.25, 0.5, 1, 0.5, 0.25,0,0,0,0,0,0,0,0,0,0,0};
+    vector<complex<double>> normalized_state;
+    normalized_state = normalize_statevector(arbitrary_state);
+    print_statevector(normalized_state);
 
-    // vector<double> arbitrary_state_angles; 
+    // vector<double> arbitrary_state_angles;
     // vector<complex<double>> remain_state;
-    auto [remain_state, arbitrary_state_angles] = calculate_angles(arbitrary_state, N);
-    
+    auto [remain_state, arbitrary_state_angles] = calculate_angles(normalized_state, N);
+
     // vector<double> corrected;
     // corrected = correct_angles(arbitrary_state_angles);
-    for (const auto& angle :arbitrary_state_angles) {
-        cout << angle << " ";
-    }
-    cout << endl;
+    // print_angles_vec(arbitrary_state_angles);
+    // print_statevector(remain_state);
 
-    for (const auto& state :remain_state) {
-        cout << state << " ";
-    }
-    cout << endl;
     auto [new_remain_state, thetas_vec, phis_vec] = rotations(remain_state);
-    qexpr::eval_hold(qexpr::_RY(qmem[1], -thetas_vec[0]));
+    // qexpr::eval_hold(qexpr::_RY(qmem[1], -thetas_vec[0]));
 
-    qexpr::eval_hold(multiplex(qmem[0], qmem[1], arbitrary_state_angles));
-
-    
-
-    
+    // qexpr::eval_hold(multiplex(qmem[0], qmem[1], arbitrary_state_angles));
 
     std::vector<std::reference_wrapper<qbit>> qids;
-	for (index_t qubit = 0; qubit < N; ++qubit)
-	{
-		qids.push_back(std::ref(qmem[qubit]));
-	}
+    for (index_t qubit = 0; qubit < N; ++qubit)
+    {
+        qids.push_back(std::ref(qmem[qubit]));
+    }
 
-	std::cout << "------- " << N << " qubit states -------" << std::endl;
-	std::vector<double> state_results = iqs_device.getProbabilities(qids);
+    std::cout << "------- " << N << " qubit states -------" << std::endl;
+    std::vector<double> state_results = iqs_device.getProbabilities(qids);
     iqsdk::FullStateSimulator::displayProbabilities(state_results, qids);
     std::vector<std::complex<double>> amplitudes = iqs_device.getAmplitudes(qids);
     iqsdk::FullStateSimulator::displayAmplitudes(amplitudes, qids);
     return 0;
-
 }
